@@ -32,6 +32,10 @@ repositories {
     mavenCentral()
 }
 
+test {
+    useJUnitPlatform()
+}
+
 dependencies {
     implementation("org.springframework.boot:spring-boot-starter-web") {
         exclude module: "spring-boot-starter-tomcat"
@@ -44,14 +48,9 @@ dependencies {
 
     testImplementation "org.mockito:mockito-core:${mockitoVersion}"
     testImplementation "org.mockito:mockito-junit-jupiter:${mockitoVersion}"
-    testImplementation "org.springframework.boot:spring-boot-starter-test"
+    testImplementation "org.junit.jupiter:junit-jupiter-api"
+    testImplementation("org.springframework.boot:spring-boot-starter-test") {
+        exclude group: 'org.junit.vintage', module: 'junit-vintage-engine'
+    }
     testImplementation "org.springframework.security:spring-security-test"
-}
-
-test {
-    useJUnitPlatform()
-}
-
-dependencies {
-    testCompile group: 'junit', name: 'junit', version: '4.12'
 }
