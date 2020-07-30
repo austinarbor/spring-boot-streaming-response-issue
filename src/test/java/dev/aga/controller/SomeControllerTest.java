@@ -84,8 +84,8 @@ class SomeControllerTest {
             mvc.perform(get(BASE_URI + "download4"))
                     .andExpect(request().asyncStarted())
                     .andDo(MvcResult::getAsyncResult)
-                    .andExpect(status().isBadRequest())
-                    .andExpect(jsonPath("$.error").value("Illegal State"));
+                    .andExpect(status().isConflict())
+                    .andExpect(jsonPath("$.error").value("Conflict"));
         } catch (Exception e) {
             fail(e);
         }
