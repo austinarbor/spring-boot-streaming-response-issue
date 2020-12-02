@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -58,8 +59,9 @@ public class SomeController {
 
 
     @ExceptionHandler(IllegalArgumentException.class)
-    ResponseEntity<ErrorDetails> handleIllegalArgumentException(IllegalArgumentException e, HttpServletRequest request) {
+    ResponseEntity<ErrorDetails> handleIllegalArgumentException(IllegalArgumentException e, HttpServletRequest request, HttpServletResponse response) {
         log.info("Inside handleIllegalArgumentException");
+        response.setContentType("application/json");
         var errorDetails = new ErrorDetails(request.getRequestURI(), e.getMessage());
         return ResponseEntity.status(HttpStatus.BAD_GATEWAY)
                 .body(errorDetails);

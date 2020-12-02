@@ -9,6 +9,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 
 import static org.junit.jupiter.api.Assertions.fail;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.asyncDispatch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.request;
@@ -26,15 +27,13 @@ class SomeControllerTest {
     @Test
     void testDownload1() {
         try {
-            /*
-            Note: In tests this always says return status is 200...but if you run the request in CURL / browser you get 500...
-             */
-            mvc.perform(get(BASE_URI + "download1"))
+            MvcResult mvcResult = mvc.perform(get(BASE_URI + "download1"))
                     .andExpect(request().asyncStarted())
-                    .andDo(MvcResult::getAsyncResult)
-                    .andExpect(status().isBadRequest())
-                    .andExpect(jsonPath("$.error").value("Illegal Argument"))
                     .andReturn();
+
+            mvc.perform(asyncDispatch(mvcResult))
+                    .andExpect(status().isBadGateway())
+                    .andExpect(jsonPath("$.error").value("Illegal Argument"));
 
         } catch (Exception e) {
             fail(e);
@@ -44,14 +43,14 @@ class SomeControllerTest {
     @Test
     void testDownload2() {
         try {
-            /*
-            Note: In tests this always says return status is 200...but if you run the request in CURL / browser you get 500...
-             */
-            mvc.perform(get(BASE_URI + "download2"))
+            MvcResult mvcResult = mvc.perform(get(BASE_URI + "download2"))
                     .andExpect(request().asyncStarted())
-                    .andDo(MvcResult::getAsyncResult)
+                    .andReturn();
+
+            mvc.perform(asyncDispatch(mvcResult))
                     .andExpect(status().isConflict())
-                    .andExpect(jsonPath("$.error").value("Illegal State"));
+                    .andExpect(status().reason("Illegal state!"));
+
         } catch (Exception e) {
             fail(e);
         }
@@ -60,14 +59,12 @@ class SomeControllerTest {
     @Test
     void testDownload3() {
         try {
-            /*
-            Note: In tests this always says return status is 200...but if you run the request in CURL / browser you get the correct 502
-            with the error details
-             */
-            mvc.perform(get(BASE_URI + "download3"))
+            MvcResult mvcResult = mvc.perform(get(BASE_URI + "download3"))
                     .andExpect(request().asyncStarted())
-                    .andDo(MvcResult::getAsyncResult)
-                    .andExpect(status().isBadRequest())
+                    .andReturn();
+
+            mvc.perform(asyncDispatch(mvcResult))
+                    .andExpect(status().isBadGateway())
                     .andExpect(jsonPath("$.error").value("Illegal Argument"));
         } catch (Exception e) {
             fail(e);
@@ -77,15 +74,13 @@ class SomeControllerTest {
     @Test
     void testDownload4() {
         try {
-            /*
-            Note: In tests this always says return status is 200...but if you run the request in CURL / browser you get the correct 409
-            with the reason in the output
-             */
-            mvc.perform(get(BASE_URI + "download4"))
+            MvcResult mvcResult = mvc.perform(get(BASE_URI + "download4"))
                     .andExpect(request().asyncStarted())
-                    .andDo(MvcResult::getAsyncResult)
+                    .andReturn();
+
+            mvc.perform(asyncDispatch(mvcResult))
                     .andExpect(status().isConflict())
-                    .andExpect(jsonPath("$.error").value("Conflict"));
+                    .andExpect(status().reason("Illegal state!"));
         } catch (Exception e) {
             fail(e);
         }
